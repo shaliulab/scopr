@@ -16,9 +16,18 @@ experiment_info <- function(FILE){
     {metadata <- RSQLite::dbGetQuery(con, "SELECT * FROM METADATA")},
     finally={RSQLite::dbDisconnect(con)})
 
-  v <- as.list(metadata$value)
-  names(v) <- metadata$field
-  #fixme explicitly GMT
-  v$date_time <- as.POSIXct(as.integer(v$date_time),origin="1970-01-01",tz = "GMT")
+  if (nrow(metadata) == 0) {
+    warning(paste0("sqlite3 file ", FILE, "has an empty METADATA table"))
+    v <- list()
+    # this assumes the folder the dbfile lives in is the datetime when the experiment started, which should be true in a normal case
+    # the format of the datetime is YYYY-MM-DD_HH-MM-SS
+    date_time_str <- rev(unlist(strsplit(dirname(FILE), split ="/")))[1]
+    v$date_time <- as.POSIXct(date_time_str, tz="GMT", format="%Y-%m-%d_%H-%M-%S")
+  } else {
+    v <- as.list(metadata$value)
+    names(v) <- metadata$field
+    #fixme explicitly GMT
+    v$date_time <- as.POSIXct(as.integer(v$date_time),origin="1970-01-01",tz = "GMT")
+  }
   return(v)
 }
