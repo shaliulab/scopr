@@ -1,8 +1,14 @@
+
 #' This function will be executed for every entry in q_l
 #' i.e. once for every file
 #' It uses one and only one core
 #' @param q Metadata subset with animals from the same experiment
 #' @param ... Additional arguments to load_row
+#' @description # the  current version of load_ethoscope has two problems:
+#' \itemize{
+#' \item All flies passed need to be available
+#' \item All annotation arguments need to be specified (no default)
+#' }
 load_data_single_core <- function(q, ...){
 
   # Make the metadata compatible with lapply
@@ -229,7 +235,6 @@ load_row <- function(row,
   dt_patches <- dt_patches[!sapply(dt_patches, is.null)]
 
   patches <- dt_patches[setdiff(names(dt_patches), "default")]
-
   patches_dt <- Reduce(behavr::rbind_behavr, patches)
   dt <- dt_patches[["default"]]
   # if (length(patches) > 0) {
@@ -359,10 +364,8 @@ load_ethoscope <- function(metadata,
                     map_arg = map_arg,
                     callback = callback,
                     ...)
-
   dt <- behavr::bind_behavr_list(l_dt)
 
-  # browser()
   if (length(meta_fun) != 0) {
     annotations <- lapply(meta_fun, function(func) {
       args <- get_func_args(func, dt, ...)
