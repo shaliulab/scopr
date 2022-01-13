@@ -1,8 +1,14 @@
+
 #' This function will be executed for every entry in q_l
 #' i.e. once for every file
 #' It uses one and only one core
 #' @param q Metadata subset with animals from the same experiment
 #' @param ... Additional arguments to load_row
+#' @description # the  current version of load_ethoscope has two problems:
+#' \itemize{
+#' \item All flies passed need to be available
+#' \item All annotation arguments need to be specified (no default)
+#' }
 load_data_single_core <- function(q, ...){
 
   # Make the metadata compatible with lapply
@@ -11,6 +17,7 @@ load_data_single_core <- function(q, ...){
 
   # call parse_single_roi with l_rows combined with the arguments
   # parsed from the metadata file
+  #browser()
   l_dt <- lapply(l_rows, function(x) load_row(row=x, ...))
 
   # restore a behavr table from a list of behavr tables
@@ -29,6 +36,7 @@ load_data_single_core <- function(q, ...){
 #' @return behavr table
 load_data <- function(q_l, ncores=1, ...) {
 
+  #browser()
   if (ncores == 1) {
     l_dt <- lapply(1:length(q_l), function(i) load_data_single_core(q_l[[i]], ...))
   } else{
@@ -164,6 +172,7 @@ load_row <- function(row,
   # print(intervals)
 
   dt_patches <- lapply(1:length(intervals), function(i) {
+    # browser()
     interv <- intervals[[i]]
     interv_name <- gsub(pattern = "interval_", replacement = "", x = names(intervals)[i])
     args <- arg_list
@@ -215,6 +224,7 @@ load_row <- function(row,
     # parse single roi will
     # * load the data into R
     # * preanalyze / annotate it
+    #browser()
     out <- do.call(parse_single_roi, args)
     if (is.null(out)) {
       warning(sprintf("ROI %s from file %s has no data", args$data$region_id, args$data$file_info[[1]]$path))
@@ -229,7 +239,6 @@ load_row <- function(row,
   dt_patches <- dt_patches[!sapply(dt_patches, is.null)]
 
   patches <- dt_patches[setdiff(names(dt_patches), "default")]
-
   patches_dt <- Reduce(behavr::rbind_behavr, patches)
   dt <- dt_patches[["default"]]
   # if (length(patches) > 0) {
@@ -317,6 +326,7 @@ load_ethoscope <- function(metadata,
 
   file_info <- NULL
 
+
   metadata$fly_count <- 1:nrow(metadata)
 
 
@@ -341,6 +351,7 @@ load_ethoscope <- function(metadata,
   # Split the metadata into a list where every element is a subset
   # where every row has the same path
   experiment_id <- metadata[, sapply(file_info, function(x) x$path)]
+
   q_l <- split(metadata, experiment_id)
   for (q in q_l) data.table::setkeyv(q, data.table::key(metadata))
 
@@ -359,10 +370,8 @@ load_ethoscope <- function(metadata,
                     map_arg = map_arg,
                     callback = callback,
                     ...)
-
   dt <- behavr::bind_behavr_list(l_dt)
 
-  # browser()
   if (length(meta_fun) != 0) {
     annotations <- lapply(meta_fun, function(func) {
       args <- get_func_args(func, dt, ...)
