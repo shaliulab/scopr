@@ -63,7 +63,6 @@ annotate_one_func <- function(data, id, FUN, ...) {
 #' @export
 annotate_single_roi <- function(data, FUN=NULL, path=NULL, region_id = NULL, ...) {
 
-
   ## Annotate one single animal (ROI)
   ## ----
 
@@ -80,12 +79,9 @@ annotate_single_roi <- function(data, FUN=NULL, path=NULL, region_id = NULL, ...
     # also works when there is only 1 and the user does not wrap it around list()
     if (is.function(FUN)) {FUN <- list(FUN)}
     data <- as.data.table(data)
-
-
     annotations <- lapply(FUN, function(x) {
       annotate_one_func(data=data, FUN=x, ...)
     })
-
 
     # if no annotation FUN is passed
   } else {
@@ -97,9 +93,8 @@ annotate_single_roi <- function(data, FUN=NULL, path=NULL, region_id = NULL, ...
   # }
 
   merge_annotations <- function(x, y) {
-    merge(x, y, by=c("id", "t"))
+    merge(x, y[,c("id", "t", setdiff(colnames(y), colnames(x))), with=F], by=c("id", "t"))
   }
-
 
   # merge all the annotations into a single data.table
   data_annotated <- Reduce(merge_annotations, annotations)
