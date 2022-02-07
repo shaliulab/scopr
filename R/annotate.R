@@ -98,8 +98,10 @@ annotate_single_roi <- function(data, FUN=NULL, path=NULL, region_id = NULL, ...
 
   # merge all the annotations into a single data.table
   data_annotated <- Reduce(merge_annotations, annotations)
-  data.table::setkey(data_annotated, id)
-  behavr::setmeta(data_annotated, metadata)
+  if (!is.null(data_annotated)) {
+    data.table::setkey(data_annotated, id)
+    behavr::setmeta(data_annotated, metadata)
+  }
 
   return(data_annotated)
 }
