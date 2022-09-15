@@ -88,7 +88,7 @@ load_sd_daterange <- function(meta_row, from_zt0=TRUE) {
 
   metadata <- get_metadata(sapply(meta_row$file_info, function(x) x$path))
   date_range <- metadata$selected_options$interactor$kwargs$date_range
-  if (is.null(date_range)) {
+  if (is.null(date_range) | date_range == "") {
     timestamps <- c(-1, -1)
 
   } else {
