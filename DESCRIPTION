@@ -36,5 +36,5 @@ Encoding: UTF-8
 LazyData: true
 URL: https://github.com/shaliulab/scopr
 BugReports: https://github.com/shaliulab/scopr/issues
-RoxygenNote: 7.1.1.9000
+RoxygenNote: 7.1.2
 Roxygen: list(markdown = TRUE)

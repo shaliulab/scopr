@@ -2,6 +2,7 @@
 #'
 #' Expected format is "YYYY-MM-DD"
 #' @importFrom readr parse_date stop_for_problems
+#' @export
 #' @noRd
 parse_date <- function(x, format="", tz="UTC"){
 
@@ -25,6 +26,7 @@ parse_date <- function(x, format="", tz="UTC"){
 #'
 #' Expected format is "HH:MM:SS"
 #' @importFrom readr parse_time stop_for_problems
+#' @export
 #' @noRd
 parse_time <- function(x, format="", tz="UTC"){
 

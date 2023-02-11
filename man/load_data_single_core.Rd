@@ -18,3 +18,10 @@ This function will be executed for every entry in q_l
 i.e. once for every file
 It uses one and only one core
 }
+\section{the  current version of load_ethoscope has two problems:}{
+\itemize{
+\item All flies passed need to be available
+\item All annotation arguments need to be specified (no default)
+}
+}
+

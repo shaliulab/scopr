@@ -24,6 +24,7 @@ is.writable <- function(path) {
 #' @importFrom R6 R6Class
 #' @importFrom rjson fromJSON toJSON
 #' @method initialize something
+#' @method toggle foo 
 #' @field content List of configuration items
 #' @export
 #' @field config_file Default configuration file path
@@ -56,6 +57,8 @@ scoprConfiguration <- R6::R6Class(classname = "scoprConfiguration", public = lis
     self$load(self$config_file)
   },
 
+  #' Toggle property status
+  #' @param property foo
   toggle = function(property) {
     self$content[[property]] <- ! self$content[[property]]
     self$save(self$config_file)

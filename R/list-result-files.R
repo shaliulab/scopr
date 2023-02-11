@@ -26,6 +26,7 @@ keep_valid_db_files <- function(db_files, result_dir) {
 
 #' @noRd
 #' @importFrom stringr str_split
+#' @export
 #' @import data.table
 parse_datetime <- function(x){
     match <- stringr::str_split(x, "_", simplify=TRUE)

@@ -33,6 +33,7 @@ load_data_single_core <- function(q, ...){
 #' @param ncores number of cores to use for optional parallel processing (experimental).
 #' @param ... Extra arguments to be passed to load_row
 #' @seealso load_row
+#' @export
 #' @return behavr table
 load_data <- function(q_l, ncores=1, ...) {
 

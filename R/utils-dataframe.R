@@ -1,6 +1,7 @@
 #' Checks if the expected columns are all in a given character vector. Error otherwise
 #' @param expected_colnames the colnames that should be in a dt
 #' @param df the dataframe in which the columns are expected
+#' @export
 #' @noRd
 check_columns <- function(expected_colnames, df){
   cols <- colnames(df)

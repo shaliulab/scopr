@@ -1,6 +1,7 @@
 #' Try to connect to a sqlite 3 database
 #' If an error is encountered, report it in a friendly-way
 #' @import RSQLite
+#' @export
 #' @noRd
 dbConnectFriendly <- function(file, flags=RSQLite::SQLITE_RO, ...) {
 

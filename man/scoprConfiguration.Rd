@@ -45,8 +45,7 @@ Called by running \code{scoprConfiguration$new()}}
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{config_file}}{Path to the default configuration file
-Make sure all folders that scopr needs are writable
-if they are not, recreate them as needed in the HOME folder}
+Toggle property status}
 }
 \if{html}{\out{</div>}}
 }
@@ -59,6 +58,15 @@ if they are not, recreate them as needed in the HOME folder}
 \if{html}{\out{<div class="r">}}\preformatted{scoprConfiguration$toggle(property)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{property}}{foo
+Make sure all folders that scopr needs are writable
+if they are not, recreate them as needed in the HOME folder}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-verify"></a>}}
