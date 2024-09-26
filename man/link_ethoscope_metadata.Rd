@@ -6,8 +6,14 @@
 \alias{link_ethoscope_metadata}
 \title{Link ethoscope metadata to the matching result files}
 \usage{
-link_ethoscope_metadata_remote(x, remote_dir, result_dir,
-  index_file = "index.txt", overwrite_local = FALSE, verbose = TRUE)
+link_ethoscope_metadata_remote(
+  x,
+  remote_dir,
+  result_dir,
+  index_file = "index.txt",
+  overwrite_local = FALSE,
+  verbose = TRUE
+)
 
 link_ethoscope_metadata(x, result_dir = NULL, index_file = NULL)
 }
@@ -23,7 +29,7 @@ link_ethoscope_metadata(x, result_dir = NULL, index_file = NULL)
 \item{overwrite_local}{whether to download all files.
 The default, \code{FALSE}, is to only fetch files if they are newer on the remote.}
 
-\item{verbose}{whether to print progress (a logical)}
+\item{verbose}{Log info messages or not}
 }
 \value{
 a \link[data.table:data.table]{data.table::data.table} with the same rows as x, and extra columns for further data loading
@@ -44,7 +50,7 @@ The provided \link{data.table} has typically one row per requested individual an
 \item \code{region_id} -- the ROI in which the animal was. When \emph{not provided, all regions are queried}.
 \item \code{time} -- the start time of the experiment formatted as "HH:MM:SS".
 When \emph{not provided}, and multiple experiment for the same machine exist, \emph{only the last one is loaded}.
-\item \code{???} -- any number of arbitrary columns* to associate \code{conditions}/\code{treatments}/\code{genotypes}/... to the previous columns.
+\item \verb{???} -- any number of arbitrary columns* to associate \code{conditions}/\code{treatments}/\code{genotypes}/... to the previous columns.
 }
 \item The name of a CSV file that contains a table as described in \code{1}.
 \item A vector of \code{.db} files to be read.

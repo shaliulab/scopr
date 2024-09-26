@@ -4,15 +4,29 @@
 \alias{load_ethoscope}
 \title{Load data from ethoscope result files}
 \usage{
-load_ethoscope(metadata, min_time = 0, max_time = Inf,
-  reference_hour = NULL, verbose = TRUE, columns = NULL, cache = NULL,
-  ncores = 1, FUN = NULL, ...)
+load_ethoscope(
+  metadata,
+  min_time = 0,
+  max_time = Inf,
+  reference_hour = NULL,
+  ncores = 1,
+  verbose = TRUE,
+  columns = NULL,
+  cache = NULL,
+  FUN = NULL,
+  map_arg = NULL,
+  callback = NULL,
+  ...
+)
 }
 \arguments{
 \item{metadata}{\link[data.table:data.table]{data.table::data.table} used to load data (see detail)}
 
-\item{min_time, max_time}{load only data between \code{min_time} and \code{max_time} (in seconds).
-This time is \emph{relative to the start of the experiment}.}
+\item{min_time}{load only data > \code{min_time} (in seconds).
+This time is \emph{relative to the start of the experiment (not ZT0)}.}
+
+\item{max_time}{load only data < \code{max_time} (in seconds).
+This time is \emph{relative to the start of the experiment (not ZT0)}.}
 
 \item{reference_hour}{hour, in the day, to use as ZT0 reference.
 When unspecified, time will be relative to the start of the experiment.}
@@ -25,12 +39,12 @@ When \code{NULL} and if \code{FUN} is set, columns can be retrieved automaticall
 
 \item{cache}{the name of a local directory to cache results for faster subsequent data loading.}
 
-\item{ncores}{number of cores to use for optional parallel processing (experimental).}
-
 \item{FUN}{function (optional) to transform the data from each individual
 immediately after is has been loaded.}
 
-\item{...}{extra arguments to be passed to \code{FUN}}
+\item{map_arg}{OPTIONAL a list to map \code{FUN} arguments to metavariables values. See details}
+
+\item{...}{extra arguments to be passed to load_data}
 }
 \value{
 A \link{behavr} table.
@@ -43,7 +57,7 @@ Distance units (e.g. xy position, height/width) are expressed as a fraction of t
 }
 }
 \description{
-This function is used to import behavioural data generated
+This function is used to import behavioral data generated
 by the \href{http://gilestrolab.github.io/ethoscope/}{ethoscope platform}.
 That is it loads multiple \code{.db} files into a single \code{R} \link[behavr:behavr]{behavr::behavr} table.
 }
@@ -78,9 +92,17 @@ dt
 }
 }
 \seealso{
+load_data
+
+load_row
+
 \itemize{
 \item \link[behavr:behavr]{behavr::behavr} -- to understand the output format
 \item \link{experiment_info} -- to show information about a file/experiment
 \item \link{list_result_files} -- to list available files
 }
+
+Other load_ethoscope: 
+\code{\link{load_row}()}
 }
+\concept{load_ethoscope}

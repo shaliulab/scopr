@@ -21,6 +21,6 @@ scopr_example <- function(path = NULL) {
 #' @rdname scopr_example
 #' @export
 scopr_example_dir <- function() {
-  system.file("extdata",package = "scopr")
+  system.file("extdata", package = "scopr")
 }
 
