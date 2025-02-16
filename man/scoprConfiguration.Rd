@@ -25,17 +25,17 @@ Called by running \code{scoprConfiguration$new()}}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-new}{\code{scoprConfiguration$new()}}
-\item \href{#method-toggle}{\code{scoprConfiguration$toggle()}}
-\item \href{#method-verify}{\code{scoprConfiguration$verify()}}
-\item \href{#method-save}{\code{scoprConfiguration$save()}}
-\item \href{#method-load}{\code{scoprConfiguration$load()}}
-\item \href{#method-clone}{\code{scoprConfiguration$clone()}}
+\item \href{#method-scoprConfiguration-new}{\code{scoprConfiguration$new()}}
+\item \href{#method-scoprConfiguration-toggle}{\code{scoprConfiguration$toggle()}}
+\item \href{#method-scoprConfiguration-verify}{\code{scoprConfiguration$verify()}}
+\item \href{#method-scoprConfiguration-save}{\code{scoprConfiguration$save()}}
+\item \href{#method-scoprConfiguration-load}{\code{scoprConfiguration$load()}}
+\item \href{#method-scoprConfiguration-clone}{\code{scoprConfiguration$clone()}}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-new"></a>}}
-\if{latex}{\out{\hypertarget{method-new}{}}}
+\if{html}{\out{<a id="method-scoprConfiguration-new"></a>}}
+\if{latex}{\out{\hypertarget{method-scoprConfiguration-new}{}}}
 \subsection{Method \code{new()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{scoprConfiguration$new(config_file = config_files)}\if{html}{\out{</div>}}
@@ -52,8 +52,8 @@ if they are not, recreate them as needed in the HOME folder}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-toggle"></a>}}
-\if{latex}{\out{\hypertarget{method-toggle}{}}}
+\if{html}{\out{<a id="method-scoprConfiguration-toggle"></a>}}
+\if{latex}{\out{\hypertarget{method-scoprConfiguration-toggle}{}}}
 \subsection{Method \code{toggle()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{scoprConfiguration$toggle(property)}\if{html}{\out{</div>}}
@@ -61,8 +61,8 @@ if they are not, recreate them as needed in the HOME folder}
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-verify"></a>}}
-\if{latex}{\out{\hypertarget{method-verify}{}}}
+\if{html}{\out{<a id="method-scoprConfiguration-verify"></a>}}
+\if{latex}{\out{\hypertarget{method-scoprConfiguration-verify}{}}}
 \subsection{Method \code{verify()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{scoprConfiguration$verify(config_file = NULL)}\if{html}{\out{</div>}}
@@ -81,8 +81,8 @@ If the passed config_file is null, use the instance's default}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-save"></a>}}
-\if{latex}{\out{\hypertarget{method-save}{}}}
+\if{html}{\out{<a id="method-scoprConfiguration-save"></a>}}
+\if{latex}{\out{\hypertarget{method-scoprConfiguration-save}{}}}
 \subsection{Method \code{save()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{scoprConfiguration$save(config_file)}\if{html}{\out{</div>}}
@@ -101,8 +101,8 @@ If it exists, load its contents and update the configuration}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-load"></a>}}
-\if{latex}{\out{\hypertarget{method-load}{}}}
+\if{html}{\out{<a id="method-scoprConfiguration-load"></a>}}
+\if{latex}{\out{\hypertarget{method-scoprConfiguration-load}{}}}
 \subsection{Method \code{load()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{scoprConfiguration$load(config_file)}\if{html}{\out{</div>}}
@@ -117,8 +117,8 @@ If it exists, load its contents and update the configuration}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-clone}{}}}
+\if{html}{\out{<a id="method-scoprConfiguration-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-scoprConfiguration-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{
