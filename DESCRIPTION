@@ -18,7 +18,6 @@ Depends:
 Imports: 
   data.table,
   readr,
-  stringr,
   RSQLite,
   magrittr,
   memoise,

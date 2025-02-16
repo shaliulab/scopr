@@ -25,13 +25,15 @@ keep_valid_db_files <- function(db_files, result_dir) {
 
 
 #' @noRd
-#' @importFrom stringr str_split
 #' @import data.table
 parse_datetime <- function(x){
-    match <- stringr::str_split(x, "_", simplify=TRUE)
-    d <- parse_date(match[,1])
-    t <- parse_time(match[,2],format="%H-%M-%S")
-    data.table::data.table(date=d, time = t)
+    all_tokens <- strsplit(x, split = "_")
+    d <- sapply(all_tokens, function(tokens) tokens[1])
+    t <- sapply(all_tokens, function(tokens) tokens[2])
+
+    d <- parse_date(d)
+    t <- parse_time(t, format = "%H-%M-%S")
+    data.table::data.table(date = d, time = t)
 }
 
 
