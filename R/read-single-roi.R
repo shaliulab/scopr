@@ -154,6 +154,27 @@ read_single_roi <- function(FILE,
       return(NULL)
     }
 
+
+    ## ----
+    ## 2.5 Adjust the t column by
+    ## * Aligning it to ZT0 if provided via the reference_hour argument
+    ## * Converting it to seconds
+
+    # 1. change the reference t0 from the start of the experiment
+    # to the user provided reference_hour if available
+    # the start of the experiment is recorded in experiment_info$date_time
+    # see experiment_info() for more information
+    # 2. convert from ms to s
+    if (!is.null(reference_hour)){
+
+      ms_after_ref <- get_ms_after_ref(experiment_info, reference_hour)
+      min_time <- min_time - ms_after_ref / 1000
+      max_time <- max_time - ms_after_ref / 1000
+    } else {
+      ms_after_ref <- 0
+    }
+
+
     ## ----
 
 
@@ -185,7 +206,6 @@ read_single_roi <- function(FILE,
                          selected_cols, region_id,
                          min_time, max_time_condition )
 
-
     result <- RSQLite::dbGetQuery(con, sql_query)
 
     ## ----
@@ -211,20 +231,9 @@ read_single_roi <- function(FILE,
     }
 
 
-    ## ----
-    ## 2.5 Adjust the t column by
-    ## * Aligning it to ZT0 if provided via the reference_hour argument
-    ## * Converting it to seconds
 
-    # 1. change the reference t0 from the start of the experiment
-    # to the user provided reference_hour if available
-    # the start of the experiment is recorded in experiment_info$date_time
-    # see experiment_info() for more information
-    # 2. convert from ms to s
+
     if(!is.null(reference_hour)){
-
-      ms_after_ref <- get_ms_after_ref(experiment_info, reference_hour)
-
       # add that amount to the t column so it becomes aligned with ZT
       # t will reflect the time since ZT0 and NOT since the experiment start
       # convert to seconds
@@ -232,8 +241,7 @@ read_single_roi <- function(FILE,
 
       roi_dt[, t := (t + ms_after_ref) / 1e3 ]
 
-    }
-    else{
+    } else {
       # if no reference_hour available, assume they are already aligned
       # i.e. do nothing
       # convert to seconds

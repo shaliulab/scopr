@@ -70,10 +70,8 @@ check_arg_list_for_dups <- function(arg_list) {
 #' Prepare a list of arguments to pass to parse_single_roi
 #' using arguments explicitly declared by the user or taken from the metadata
 #' @param row Metadata for one animal only
-#' @param min_time load only data > `min_time` (in seconds).
-#' This time is *relative to the start of the experiment (not ZT0)*.
-#' @param max_time load only data < `max_time` (in seconds).
-#' This time is *relative to the start of the experiment (not ZT0)*.
+#' @param min_time load only data > `min_time` (in seconds), relative to ZT0.
+#' @param max_time load only data < `max_time` (in seconds), relative to ZT0.
 #' @param reference_hour hour, in the day, to use as ZT0 reference.
 #' When unspecified, time will be relative to the start of the experiment.
 #' @param cache the name of a local directory to cache results for faster subsequent data loading.
@@ -115,6 +113,7 @@ load_row <- function(row,
                    FUN = FUN,
                    ...
   )
+  
 
   # if reference_hour is NA, the user
   # wants to get the reference_hour from the metadata
@@ -138,12 +137,12 @@ load_row <- function(row,
   arg_list <- c(arg_list, arg_val)
   arg_list <- check_arg_list_for_dups(arg_list)
 
+
   PRESET_INTERVAL <- list(
     SD = function(row) {c(load_sd_daterange(row, from_zt0 = FALSE), load_sd_daterange(row, from_zt0 = TRUE))}
   )
 
   interval_columns <- grep(pattern = "interval_", x = colnames(row), value = TRUE)
-
 
 
   if (is.null(intervals) & length(interval_columns) != 0) {
@@ -156,7 +155,7 @@ load_row <- function(row,
     intervals <- list()
   }
 
-  intervals <- append(list(default = c(0, Inf)), intervals)
+  intervals <- append(list(default = c(arg_list$min_time, arg_list$max_time)), intervals)
 
   intervals <- lapply(intervals, function(interv) {
     # print(interv)
@@ -225,7 +224,6 @@ load_row <- function(row,
     # parse single roi will
     # * load the data into R
     # * preanalyze / annotate it
-    #browser()
     out <- do.call(parse_single_roi, args)
     if (is.null(out)) {
       warning(sprintf("ROI %s from file %s has no data", args$data$region_id, args$data$file_info[[1]]$path))
