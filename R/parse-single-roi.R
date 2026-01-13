@@ -1,103 +1,172 @@
-# for memoisation
-# we obtain data from one ROI and optionaly preanalyse it, by applying FUN.
+#' Load data from a SQLite database for one ROI and preanalyze it
+
+#' We obtain data from one ROI and optionaly preanalyse it, by applying FUN.
+#' This function is run on single individual data
+#' The actual work is done by parse_single_roi_wrapped. This function just does the following things before calling parse_single_roi_wrapped:
+#' \itemize{
+#' \item{Figure out which columns need to be queried from the SQLite file}
+#' \item{Report information messages if the user wants to}
+#' \item{Set up a memoised cache}
+#' \item{Confirm the passed input leads to a sqlite file (the file ends in db) and check its size. The size is used later on to check whether the cache is invalid or not}
+#' }
+#' Very importantly, after calling parse_single_roi_wrapped, the passed metadata input is bound to the loaded data into a behavr table
+#' @param data one row data.table corresponding to a row of the original (and then linked) metadata
+#' @param verbose boolean, if TRUE, all information messages are printed on the console. The loading process is silent otherwise
+#' @param cache character, path to a folder in the filesystem where cache files should be saved or searched to speed up future reloads of the same data
+#' @inheritParams annotate_single_roi
+#' @inheritParams read_single_roi
+#' @inheritParams parse_single_roi_wrapped
+#' @param ... Additional arguments to FUN
+#' @importFrom memoise cache_filesystem
+#' @return A behavr table containing the loaded and pre analyzed data
+#' @seealso \url{https://github.com/shaliulab/behavr}
 parse_single_roi <- function(data,
-                        min_time = 0,
-                        max_time = +Inf,
-                        reference_hour = NULL,
-                        verbose = TRUE,
-                        columns = NULL,
-                        cache=NULL,
-                        FUN = NULL,
-                        ...){
-  roi_idx = NULL
+                             min_time = 0,
+                             max_time = +Inf,
+                             reference_hour = NULL,
+                             columns = NULL,
+                             cache=NULL,
+                             verbose = FALSE,
+                             FUN = NULL,
+                             callback = NULL,
+                             ...){
+
+  roi_idx <- NULL
   id <- data$id
   region_id <- data$region_id
   path <- data$file_info[[1]]$path
 
-
-  # we get the columns to get from the method used itself
-  if(is.null(columns) & !is.null(FUN)){
+  # save the name of the columns the FUN annotation
+  # method needs by running its needed_columns
+  # attribute if it is defined
+  if (is.null(columns) & !is.null(FUN)) {
     needed_columns <- attr(FUN, "needed_columns")
-    if(!is.null(needed_columns))
+    if (!is.null(needed_columns))
       columns <- needed_columns(...)
   }
-  if(verbose)
-    cat(sprintf("Loading ROI number %i from:\n\t%s\n",region_id,path))
-  if(tools::file_ext(path) != "db")
-    stop(sprintf("Unsuported file extention in %s",path))
 
+
+
+  # Check the path leads to a sqlite3 file
+  if (tools::file_ext(path) != "db")
+    stop(sprintf("Unsuported file extention in %s", path))
+
+
+  # Compute the filesize of the sqlite3 file
+  # TODO Verify this is done to check whether the cache is invalid
   fs = file.info(path)["size"]
 
-  if(!is.null(cache)){
-    db <- memoise::cache_filesystem(cache, algo="md5")
-    parse_single_roi_wrapped_memo <- memoise::memoise(parse_single_roi_wrapped, cache=db)
-  }
-  else{
+  # If the cache defined, wrap the analysis in the memoise function
+  # to cache the results for faster reloading
+  if (!is.null(cache)) {
+    db <- memoise::cache_filesystem(cache, algo = "md5")
+    parse_single_roi_wrapped_memo <- memoise::memoise(parse_single_roi_wrapped, cache = db)
+  } else {
+    # otherwise the "cached" version is just the original function
     parse_single_roi_wrapped_memo <- parse_single_roi_wrapped
   }
 
-  out <- parse_single_roi_wrapped_memo( id,
-                                 region_id,
-                                 path,
-                                 min_time,
-                                 max_time,
-                                 reference_hour,
-                                 columns,
-                                 file_size= fs,
-                                 FUN,
-                                 ...
-                                 )
-  if(!is.null(out))
+
+  if (getOption("debug_memoise", default = FALSE)) browser()
+  # Call the analysis function , cached or not
+  out <- parse_single_roi_wrapped_memo(
+    id,
+    region_id,
+    path,
+    min_time,
+    max_time,
+    reference_hour,
+    columns,
+    file_size = fs,
+    verbose=verbose,
+    FUN,
+    ...
+  )
+
+  if (is.function(callback)) {
+    info_message <- sprintf("Loading ROI number %i from:\n\t%s\n", region_id, path)
+    callback(info_message)
+  }
+
+  if (!is.null(out))
     behavr::setbehavr(out, data)
-  out
+  return(out)
 }
 
 
-
-parse_single_roi_wrapped <- function(id, region_id,path,
+#' Load data from a sqlite database and preanalyze (annotate) it with FUN
+#'
+#' Loading is done by read_single_roi. Annotation is done by annotate_single_roi
+#'
+#' @param FUN, function or list, a function or list of functions that processes the data loaded from the SQLite file in some meaningful way
+#' @inheritParams read_single_roi
+#' @inheritParams annotate_single_roi
+#' @param id character, unique to the animal to be loaded
+#' @param path character, absolue path to dbfile (sqlite)
+#' @param file_size Size of dbfile to be loaded in bytes
+#' @param verbose Whether to report progress or not (via console)
+#' @param callback Function to call when a new animal is loaded successfully from the SQLite database
+#' @import data.table
+#' @importFrom behavr setbehavr
+parse_single_roi_wrapped <- function(id, region_id,
+                                     path,
                                      min_time = 0,
                                      max_time = +Inf,
                                      reference_hour = NULL,
                                      columns = NULL,
-                                     file_size=0,
+                                     file_size = 0,
+                                     verbose = FALSE,
                                      FUN = NULL,
                                      ...
-                                     ){
-  time_stamp = NULL
+){
+
+  # TODO The file_size is not used
+
+  ## Read data for a single ROI (fly) from the SQLite file
+  ## ----
+  time_stamp <- NULL
+
   out <- read_single_roi(path,
-                         region_id=region_id,
+                         region_id = region_id,
                          min_time = min_time,
                          max_time = max_time,
                          reference_hour = reference_hour,
-                         columns=columns,
-                         time_stamp = time_stamp)
+                         columns = columns,
+                         time_stamp = time_stamp
+  )
 
+  ## ----
+  ## Check whether any data could be loaded or not
   if(is.null(out) || nrow(out) == 0){
-    warning(sprintf("No data in ROI %i, from FILE %s. Skipping",region_id, path))
+    warning("No data in ROI ", region_id, " from FILE ", path, " Skipping")
     return(NULL)
   }
 
-
-  #id <- as.factor(sprintf("%02d|%s",region_id,experiment_id))
-
+  ## ----
+  ## Create the id column and put it in the first position
+  # Get a vector with the original column names
   old_cols <- data.table::copy(names(out))
-  out[,id := id]
-  data.table::setcolorder(out,c("id", old_cols))
+  # Create a new column called id
+  # and set its value to the content
+  # of the variable with the same name
+  # This variable is passed to parse_single_roi via
+  # the data argument, which is a row in the linked metadata
+  out[,id := id] # column = value of id (will be equal for all rows)
+
+  # Make id the first column
+  data.table::setcolorder(out, c("id", old_cols))
+
+  ## ----
+  ## Set the key of the data.table to the newly created id column
+  ## and use it to make a behavr table by attaching a temporary metadata
+  ## that just contains id
   data.table::setkeyv(out, "id")
-  met <- data.table::data.table(id = id, key="id")
+  met <- data.table::data.table(id = id, key = "id")
   behavr::setbehavr(out, met)
 
-  if(!is.null(FUN)){
-    out <- FUN(out,...)
+  ## ----
+  ## Preanalyze or annotate the loaded data
+  annot <- annotate_single_roi(out, FUN, ...)
 
-    is_empty <- is.null(out)
-    if(!is_empty)
-      is_empty <- nrow(out) == 0
-    if(is_empty){
-      warning(sprintf("No data in ROI %i after running FUN, from FILE %s. Skipping",region_id, path))
-      return(NULL)
-    }
-
-  }
-  out
+  return(annot)
 }

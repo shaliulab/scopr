@@ -1,14 +1,15 @@
 #' List the ROIs avalable in an ethoscope result file
 #' @param FILE the name of the input file
 #' @return an integer vector
+#' @import data.table 
+#' @import RSQLite
 #' @noRd
 list_all_rois <- function(FILE){
   roi_idx = NULL
   tryCatch({
-    con <- RSQLite::dbConnect(RSQLite::SQLite(), FILE, flags=RSQLite::SQLITE_RO)
+    con <- dbConnectFriendly(FILE)
     roi_map <- data.table::as.data.table(RSQLite::dbGetQuery(con, "SELECT * FROM ROI_MAP"))
-  },
-  finally = {
+  }, finally = {
     RSQLite::dbDisconnect(con)
   }
   )

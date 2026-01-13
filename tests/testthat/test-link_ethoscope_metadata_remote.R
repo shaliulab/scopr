@@ -1,6 +1,25 @@
 context("link_ethoscope_metadata_remote")
 
+test_resource <- function(resource) {
+  options(timeout = 1, warn = -1)
+
+  status <- tryCatch({
+    destfile <- tempfile()
+    download.file(resource, destfile, quiet = T)
+    TRUE
+    }, error = function(e) {
+      FALSE
+    }
+  )
+  return(status)
+}
+
+
 test_that("link_ethoscope_metadata_remote with date and machine name", {
+  status <- test_resource("https://raw.githubusercontent.com/rethomics/scopr/master/inst/extdata/ethoscope_results/index.txt")
+  if(!status) testthat::skip("Resource unavailable")
+
+
   remote_dir <-"https://raw.githubusercontent.com/rethomics/scopr/master/inst/extdata/ethoscope_results"
   dir <- paste0(scopr_example_dir(), "/ethoscope_results/")
   query <- data.frame(machine_name = c("E_014", "E_014","E_029"),
@@ -11,13 +30,13 @@ test_that("link_ethoscope_metadata_remote with date and machine name", {
   )
   result_dir <- tempdir()
 
-  out1 <- scopr:::link_ethoscope_metadata_remote(query,
+  out1 <- scopr::link_ethoscope_metadata_remote(query,
                                      remote_dir = remote_dir,
                                      result_dir = result_dir,
                                      overwrite_local = TRUE,
                                      verbose=F)
-?data.table::fread
-  out2 <- scopr:::link_ethoscope_metadata(query,
+
+  out2 <- scopr::link_ethoscope_metadata(query,
                               dir)
 
   dt1 <- load_ethoscope(out1, verbose=F)
@@ -31,6 +50,10 @@ test_that("link_ethoscope_metadata_remote with date and machine name", {
 
 
 test_that("parse_query with date, machine name, and ROIs", {
+
+  status <- test_resource("https://raw.githubusercontent.com/rethomics/scopr/master/inst/extdata/ethoscope_results/index.txt")
+  if(!status) testthat::skip("Resource unavailable")
+
   remote_dir <-"https://raw.githubusercontent.com/rethomics/scopr/master/inst/extdata/ethoscope_results"
   dir <- paste0(scopr_example_dir(), "/ethoscope_results/")
   query <- data.frame(machine_name = c("E_014", "E_014","E_029"),
@@ -48,7 +71,7 @@ test_that("parse_query with date, machine name, and ROIs", {
   query[, treatment := rep(1:3, length.out=.N)]
 
   result_dir <- tempdir()
-  out1 <- scopr:::link_ethoscope_metadata_remote(query,
+  out1 <- scopr::link_ethoscope_metadata_remote(query,
                                      remote_dir = remote_dir,
                                      result_dir = result_dir,
                                      overwrite_local = TRUE,
@@ -56,7 +79,7 @@ test_that("parse_query with date, machine name, and ROIs", {
 
 
 
-  out2 <- scopr:::link_ethoscope_metadata(query,
+  out2 <- scopr::link_ethoscope_metadata(query,
                               dir)
 
   dt1 <- load_ethoscope(out1, verbose=F)
