@@ -25,8 +25,9 @@ get_selected_options <- function(metadata) {
 
   selected_options <- metadata$selected_options %>%
     gsub(x = ., pattern = "'", replacement = '"') %>%
-    gsub(x = ., pattern = "<class ", replacement = "") %>%
-    gsub(x=., pattern = ">", replacement = "") %>%
+    # Python writes classes as <class 'module.Name'>: keep only the quoted name.
+    # Other ">" (e.g. the one separating the SD date_range) must be preserved
+    gsub(x = ., pattern = '<class ("[^"]*")>', replacement = "\\1") %>%
     gsub(x=., pattern = "\\(\\)", replacement = '""') %>%
     gsub(x=., pattern = 'u\"', replacement = '\"') %>%
     jsonlite::parse_json(json = .)
@@ -75,6 +76,33 @@ get_metadata <- function(path) {
 }
 
 
+#' Parse the date_range of an ethoscope interactor
+#'
+#' The ethoscope stores it as "YYYY-MM-DD HH:MM:SS > YYYY-MM-DD HH:MM:SS".
+#' Users type it by hand, so the spacing around ">" (and the seconds) vary:
+#' every date-time in the string is extracted, regardless of the separators.
+#' @param date_range character, as stored in the interactor kwargs
+#' @return numeric vector with the start and end of every range (s since epoch, GMT),
+#' or c(-1, -1) when no range is defined
+#' @noRd
+parse_date_range <- function(date_range) {
+  if (is.null(date_range) || length(date_range) == 0 || is.na(date_range) || trimws(date_range) == "")
+    return(c(-1, -1))
+
+  pattern <- "[0-9]{4}-[0-9]{2}-[0-9]{2}[ T_]+[0-9]{1,2}:[0-9]{2}(:[0-9]{2})?"
+  datetimes <- regmatches(date_range, gregexpr(pattern, date_range))[[1]]
+
+  if (length(datetimes) == 0 || length(datetimes) %% 2 != 0) {
+    stop(sprintf(
+      "Could not read the SD schedule '%s'. Expected 'YYYY-MM-DD HH:MM:SS > YYYY-MM-DD HH:MM:SS'",
+      date_range
+    ))
+  }
+  datetimes <- gsub("[T_]+", " ", datetimes)
+  as.numeric(as.POSIXct(datetimes, tz = "GMT", tryFormats = c("%Y-%m-%d %H:%M:%OS", "%Y-%m-%d %H:%M")))
+}
+
+
 #' Query a database for interactor date range start / end
 #' @param meta_row A row of metadata
 #' @return Integer vector of length 2 stating the milliseconds since experiment start
@@ -88,19 +116,7 @@ load_sd_daterange <- function(meta_row, from_zt0=TRUE) {
 
   metadata <- get_metadata(sapply(meta_row$file_info, function(x) x$path))
   date_range <- metadata$selected_options$interactor$kwargs$date_range
-  if (is.null(date_range) | date_range == "") {
-    timestamps <- c(-1, -1)
-
-  } else {
-    timestamps <- strsplit(date_range, split = " ") %>% unlist
-    timestamps <- timestamps[timestamps != ""] %>%
-      matrix(ncol=2,byrow=TRUE) %>%
-      apply(X = ., MARGIN = 1, FUN = function(x) paste(x, collapse = " ")) %>%
-      as.list %>%
-      lapply(., function(x) {
-        x %>% as.POSIXct(tz = "GMT") %>% as.numeric
-      }) %>% unlist
-  }
+  timestamps <- parse_date_range(date_range)
 
   date_time <- metadata$date_time
   experiment_info <- list(date_time = as.POSIXct(metadata$date_time, origin = "1970-01-01", tz = "GMT"))
