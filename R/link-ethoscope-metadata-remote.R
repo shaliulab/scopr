@@ -89,7 +89,7 @@ download_create_dir <-function(src,dst){
   tryCatch({
     download.file(src,tmp, mode="wb", method="libcurl",quiet = TRUE)
     dir.create(dirname(dst), recursive=T, showWarnings = FALSE)
-    file.copy(tmp, dst)
+    if (!file.copy(tmp, dst, overwrite = TRUE)) stop("Could not write ", dst)
     },
     finally = {unlink(tmp)}
     )
