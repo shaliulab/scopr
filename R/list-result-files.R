@@ -87,7 +87,7 @@ list_result_files <- function(result_dir, index_file=NULL){
   files_info[, file := NULL]
   files_info <- cbind(files_info, parse_datetime(files_info$datetime))
   files_info[, datetime := as.POSIXct(datetime, "%Y-%m-%d_%H-%M-%S", tz="UTC")]
-  files_info[, path := paste(result_dir, all_db_files, sep="/")]
+  files_info[, path := paste(result_dir, all_db_files[valid_files], sep="/")]
   data.table::setkeyv(files_info, key)
   return(files_info)
 }
