@@ -213,3 +213,14 @@ test_that("load_ethoscope_multiplex works", {
   expect_true(all(dt1[interval == "sd", x] == dt3[interval == "sd", x]))
 })
 
+
+test_that("an SD interval without SD schedule is skipped: the default parameters apply", {
+  dir <- paste0(scopr_example_dir(), "/ethoscope_results/")
+  query <- link_ethoscope_metadata(data.table(region_id = 1:2, machine_name = "E_014", date = "2016-01-25", time = "21:46:14"), dir)
+  # the example ethoscope has no SD schedule: load_sd_daterange gives the same start and end
+  expect_equal(diff(load_sd_daterange(query[1], from_zt0 = FALSE)), 0)
+  dt1 <- load_ethoscope(query, verbose = FALSE)
+  dt2 <- load_ethoscope(query, verbose = FALSE, intervals = list(interval_sd = "SD"))
+  expect_equal(nrow(dt2), nrow(dt1))
+  expect_equal(unique(dt2$interval), "default")
+})

@@ -150,8 +150,10 @@ load_row <- function(row,
     }
   })
 
-
-  # print(intervals)
+  # An interval without duration has no data to annotate: e.g. the SD interval of an ethoscope
+  # without SD schedule (load_sd_daterange gives the same start and end). The default parameters apply
+  empty <- vapply(intervals, function(interv) as.numeric(interv[1]) >= as.numeric(interv[2]), logical(1))
+  intervals <- intervals[names(intervals) == "default" | !empty]
 
   dt_patches <- lapply(1:length(intervals), function(i) {
     # browser()
