@@ -32,7 +32,9 @@ The default, \code{FALSE}, is to only fetch files if they are newer on the remot
 \item{verbose}{Log info messages or not}
 }
 \value{
-a \link[data.table:data.table]{data.table::data.table} with the same rows as x, and extra columns for further data loading
+a \link[data.table:data.table]{data.table::data.table} with the same rows as x, and extra columns for further data loading,
+among them \code{id} and \code{id_simple}, a short readable id formatted as \code{"YY-MM-DD XXX RR"}
+(start date, ethoscope number and region id, e.g. \code{"21-06-18 008 05"})
 }
 \description{
 These functions augment metadata so it can be subsequently loaded (with \link{load_ethoscope}).

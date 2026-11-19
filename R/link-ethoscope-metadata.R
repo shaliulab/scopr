@@ -5,7 +5,9 @@
 #' @param x object such as a [data.frame], or the name of a file (see detail)
 #' @param result_dir the directory where all data are saved
 #' @param index_file the name of an index_file, in `result_dir` (useful for loading remote data).
-#' @return a [data.table::data.table] with the same rows as x, and extra columns for further data loading
+#' @return a [data.table::data.table] with the same rows as x, and extra columns for further data loading,
+#' among them `id` and `id_simple`, a short readable id formatted as `"YY-MM-DD XXX RR"`
+#' (start date, ethoscope number and region id, e.g. `"21-06-18 008 05"`)
 #' @details
 #' These function will augment metadata from two different types of inputs (`x`):
 #' 1. A [data.frame] (recomended)
@@ -52,7 +54,7 @@
 #'
 link_ethoscope_metadata <- function(x, result_dir=NULL, index_file=NULL){
   # result_dir = NULL, index_file = NULL
-  pay = experiment_id = n = .N = region_id = id = . = path = dst_path = key = NULL
+  pay = experiment_id = n = .N = region_id = id = id_simple = . = path = dst_path = key = NULL
   query <- x
 
   # if query is a readable csv file, we parse it
@@ -145,6 +147,9 @@ link_ethoscope_metadata <- function(x, result_dir=NULL, index_file=NULL){
   }
 
   out[, id := as.factor(sprintf("%s|%02d",substr(experiment_id,1,26), region_id))]
+  # short, readable id: "YY-MM-DD XXX RR" (date, ethoscope number, region id)
+  # e.g. "2021-06-18_16-52-43_008aad...|05" -> "21-06-18 008 05"
+  out[, id_simple := as.factor(sprintf("%s %s %02d", substr(experiment_id, 3, 10), substr(experiment_id, 21, 23), as.integer(region_id)))]
   file_info <- out[,.(file_info = list(list(path = path, file = basename(path)))), by="id"]
   out <- file_info[out, on="id"]
   out[, path := NULL]
@@ -167,6 +172,7 @@ unlink_ethoscope_metadata <- function(metadata) {
   if ("file_info" %in% colnames(metadata)) metadata[, file_info := NULL ]
   if ("machine_id" %in% colnames(metadata)) metadata[, machine_id := NULL ]
   if ("id" %in% colnames(metadata)) metadata[, id := NULL ]
+  if ("id_simple" %in% colnames(metadata)) metadata[, id_simple := NULL ]
 
   if ("datetime" %in% colnames(metadata)) {
     metadata[, date := as.character(substr(datetime, 1, 10))]
